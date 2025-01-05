@@ -1,50 +1,92 @@
-# Welcome to your Expo app 👋
+# TrackerApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app for tracking daily activities and sharing progress with friends. Built with React Native, Expo, Firebase, and NativeWind.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📊 Track daily activities with increment/decrement counters
+- 📱 Beautiful, native UI with Tailwind styling
+- 🔥 Real-time updates with Firebase
+- 🤝 Share trackers with friends
+- 📈 View historical data
+- 🔒 Secure authentication
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- React Native
+- Expo Router
+- Firebase (Auth, Firestore)
+- NativeWind (TailwindCSS)
+- TypeScript
 
-   ```bash
-    npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+### Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js (v14 or newer)
+- npm or yarn
+- Expo CLI
+- Firebase account
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Installation
 
-## Get a fresh project
-
-When you're ready, run:
+1. Clone the repository:
 
 ```bash
-npm run reset-project
+git clone https://github.com/yourusername/TrackerApp.git
+cd TrackerApp
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies:
 
-## Learn more
+```bash
+npm install
+# or
+yarn install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Create a Firebase project and add your config:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+   - Create a new project in Firebase Console
+   - Enable Authentication and Firestore
+   - Copy your Firebase config
+   - Update `lib/firebase.ts` with your config values
 
-## Join the community
+4. Start the development server:
 
-Join our community of developers creating universal apps.
+```bash
+npm start
+# or
+yarn start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+5. Run on your device or simulator:
+   - Press 'i' for iOS simulator
+   - Press 'a' for Android emulator
+   - Scan QR code with Expo Go app for physical device
+
+## Project Structure
+
+```
+TrackerApp/
+├── app/                    # App screens and navigation
+│   ├── (auth)/            # Authentication screens
+│   ├── (tabs)/            # Main app tabs
+│   └── tracker/           # Tracker detail screens
+├── components/            # Reusable components
+├── context/              # React Context providers
+├── lib/                  # Utilities and configurations
+└── types/               # TypeScript type definitions
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

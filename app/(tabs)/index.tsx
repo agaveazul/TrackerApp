@@ -1,74 +1,97 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../../lib/firebase";
+import { useAuth } from "../../context/auth";
+import { Tracker } from "../../lib/firebase";
+import { Ionicons } from "@expo/vector-icons";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function TrackerList() {
+  const { user } = useAuth();
+  const [trackers, setTrackers] = useState<Tracker[]>([]);
+  const router = useRouter();
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
+  useEffect(() => {
+    if (!user) return;
+
+    // Query trackers owned by user or shared with user
+    const q = query(
+      collection(db, "users", user.uid, "trackers"),
+      where("ownerId", "==", user.uid)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const trackerList: Tracker[] = [];
+      snapshot.forEach((doc) => {
+        trackerList.push({ id: doc.id, ...doc.data() } as Tracker);
+      });
+      setTrackers(trackerList);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const renderTracker = ({ item }: { item: Tracker }) => (
+    <TouchableOpacity
+      className="flex-row items-center p-4 bg-white rounded-lg shadow-sm mb-3"
+      onPress={() => router.push(`/tracker/${item.id}`)}
+    >
+      {item.imageUrl ? (
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+          source={{ uri: item.imageUrl }}
+          className="w-12 h-12 rounded-full mr-4"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      ) : (
+        <View className="w-12 h-12 rounded-full bg-gray-200 mr-4 items-center justify-center">
+          <Ionicons name="analytics" size={24} color="#666" />
+        </View>
+      )}
+
+      <View className="flex-1">
+        <Text className="text-lg font-semibold">{item.name}</Text>
+        <Text className="text-gray-600" numberOfLines={1}>
+          {item.description}
+        </Text>
+      </View>
+
+      <View className="items-end">
+        <Text className="text-2xl font-bold">
+          {item.dailyCounts[new Date().toISOString().split("T")[0]] || 0}
+        </Text>
+        <Text className="text-gray-500">Today</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View className="flex-1 bg-gray-50">
+      <FlatList
+        className="p-4"
+        data={trackers}
+        renderItem={renderTracker}
+        keyExtractor={(item) => item.id}
+        ListEmptyComponent={
+          <View className="items-center justify-center py-8">
+            <Text className="text-gray-500 text-lg mb-4">No trackers yet</Text>
+            <TouchableOpacity
+              className="bg-blue-500 px-6 py-3 rounded-lg"
+              onPress={() => router.push("/new-tracker")}
+            >
+              <Text className="text-white font-semibold">
+                Create Your First Tracker
+              </Text>
+            </TouchableOpacity>
+          </View>
+        }
+      />
+
+      <TouchableOpacity
+        className="absolute bottom-8 right-8 w-14 h-14 bg-blue-500 rounded-full items-center justify-center shadow-lg"
+        onPress={() => router.push("/new-tracker")}
+      >
+        <Ionicons name="add" size={30} color="white" />
+      </TouchableOpacity>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
