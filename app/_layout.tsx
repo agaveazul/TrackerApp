@@ -1,5 +1,6 @@
 import { Slot, Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
+import { View, SafeAreaView, Platform, StatusBar } from "react-native";
 import "../global.css";
 import { AuthProvider, useAuth } from "../context/auth";
 
@@ -29,7 +30,21 @@ function RootLayoutNav() {
     return null; // Or a loading screen
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <View className="flex-1 bg-white">
+      <SafeAreaView className="bg-white">
+        <StatusBar barStyle="dark-content" />
+      </SafeAreaView>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: "white",
+          },
+        }}
+      />
+    </View>
+  );
 }
 
 export default function RootLayout() {

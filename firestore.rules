@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Match users collection
+    match /users/{userId} {
+      // Allow users to read their own document and allow other users to read for sharing
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+
+      // Match trackers subcollection
+      match /trackers/{trackerId} {
+        // Allow read/write if user owns the tracker
+        // or if user is in the sharedWith array
+        allow create: if isAuthenticated();
+        allow read, list: if isAuthenticated();
+        allow update: if isOwner(userId) || 
+          (isAuthenticated() && (
+            resource.data.sharedWith.hasAny([request.auth.uid]) || 
+            resource.data.originalOwnerId == request.auth.uid
+          ));
+        // Allow delete if user owns the tracker or is the original owner
+        allow delete: if isOwner(userId) || 
+          (isAuthenticated() && (
+            resource.data.originalOwnerId == request.auth.uid ||
+            resource.data.ownerId == request.auth.uid
+          ));
+      }
+    }
+  }
+} 
