@@ -14,28 +14,33 @@ service cloud.firestore {
 
     // Match users collection
     match /users/{userId} {
-      // Allow users to read their own document and allow other users to read for sharing
+      // Allow users to read their own document or others' for sharing purposes
       allow read: if isAuthenticated();
+      
+      // Allow users to write only their own document
       allow write: if isOwner(userId);
 
       // Match trackers subcollection
       match /trackers/{trackerId} {
-        // Allow read/write if user owns the tracker
-        // or if user is in the sharedWith array
+        // Allow authenticated users to create trackers
         allow create: if isAuthenticated();
+        
+        // Allow authenticated users to read/list trackers
         allow read, list: if isAuthenticated();
-        allow update: if isOwner(userId) || 
-          (isAuthenticated() && (
-            resource.data.sharedWith.hasAny([request.auth.uid]) || 
-            resource.data.originalOwnerId == request.auth.uid
-          ));
+        
+        // Allow updates under specific conditions
+        allow update: if 
+          // User owns the tracker
+          isOwner(userId) || 
+          // User is in the sharedWith array
+          (isAuthenticated() && resource.data.sharedWith.hasAny([request.auth.uid])) ||
+          // User is the original owner updating a shared copy
+          (isAuthenticated() && resource.data.originalOwnerId == request.auth.uid);
+        
         // Allow delete if user owns the tracker or is the original owner
         allow delete: if isOwner(userId) || 
-          (isAuthenticated() && (
-            resource.data.originalOwnerId == request.auth.uid ||
-            resource.data.ownerId == request.auth.uid
-          ));
+          (isAuthenticated() && resource.data.originalOwnerId == request.auth.uid);
       }
     }
   }
-} 
+}

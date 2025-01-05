@@ -51,6 +51,7 @@ type Tracker = {
 type UserEmail = {
   id: string;
   email: string;
+  name: string;
 };
 
 export default function TrackerDetail() {
@@ -67,7 +68,8 @@ export default function TrackerDetail() {
   const [isSharing, setIsSharing] = useState(false);
   const emailInputRef = useRef<TextInput>(null);
   const [sharedUserEmails, setSharedUserEmails] = useState<UserEmail[]>([]);
-  const [originalOwnerEmail, setOriginalOwnerEmail] = useState<string>("");
+  const [originalOwnerEmail, setOriginalOwnerEmail] =
+    useState<UserEmail | null>(null);
 
   useEffect(() => {
     if (!user || !id) return;
@@ -110,7 +112,12 @@ export default function TrackerDetail() {
             doc(db, "users", tracker.originalOwnerId)
           );
           if (ownerDoc.exists()) {
-            setOriginalOwnerEmail(ownerDoc.data().email);
+            const ownerData = ownerDoc.data();
+            setOriginalOwnerEmail({
+              id: tracker.originalOwnerId,
+              email: ownerData.email,
+              name: ownerData.name,
+            });
           }
         }
 
@@ -120,9 +127,11 @@ export default function TrackerDetail() {
           for (const userId of tracker.sharedWith) {
             const userDoc = await getDoc(doc(db, "users", userId));
             if (userDoc.exists()) {
+              const userData = userDoc.data();
               userEmails.push({
                 id: userId,
-                email: userDoc.data().email,
+                email: userData.email,
+                name: userData.name,
               });
             }
           }
@@ -162,17 +171,23 @@ export default function TrackerDetail() {
 
       // If this is the original tracker, update all shared copies
       if (tracker.sharedWith?.length > 0) {
+        // First find all shared copies
         const updatePromises = tracker.sharedWith.map(async (userId) => {
-          const sharedTrackerRef = doc(
-            db,
-            "users",
-            userId,
-            "trackers",
-            tracker.id
+          // Query to find the shared tracker document
+          const sharedTrackersRef = collection(db, "users", userId, "trackers");
+          const q = query(
+            sharedTrackersRef,
+            where("originalTrackerId", "==", tracker.id)
           );
-          await updateDoc(sharedTrackerRef, {
-            [`dailyCounts.${today}`]: increment(1),
-          });
+          const querySnapshot = await getDocs(q);
+
+          // Update each found shared tracker
+          const updatePromises = querySnapshot.docs.map((doc) =>
+            updateDoc(doc.ref, {
+              [`dailyCounts.${today}`]: increment(1),
+            })
+          );
+          await Promise.all(updatePromises);
         });
         await Promise.all(updatePromises);
       }
@@ -208,17 +223,23 @@ export default function TrackerDetail() {
 
       // If this is the original tracker, update all shared copies
       if (tracker.sharedWith?.length > 0) {
+        // First find all shared copies
         const updatePromises = tracker.sharedWith.map(async (userId) => {
-          const sharedTrackerRef = doc(
-            db,
-            "users",
-            userId,
-            "trackers",
-            tracker.id
+          // Query to find the shared tracker document
+          const sharedTrackersRef = collection(db, "users", userId, "trackers");
+          const q = query(
+            sharedTrackersRef,
+            where("originalTrackerId", "==", tracker.id)
           );
-          await updateDoc(sharedTrackerRef, {
-            [`dailyCounts.${today}`]: increment(-1),
-          });
+          const querySnapshot = await getDocs(q);
+
+          // Update each found shared tracker
+          const updatePromises = querySnapshot.docs.map((doc) =>
+            updateDoc(doc.ref, {
+              [`dailyCounts.${today}`]: increment(-1),
+            })
+          );
+          await Promise.all(updatePromises);
         });
         await Promise.all(updatePromises);
       }
@@ -347,6 +368,35 @@ export default function TrackerDetail() {
             if (!user || !tracker) return;
             try {
               setDeleting(true);
+
+              // If this tracker has been shared, delete all shared copies first
+              if (tracker.sharedWith?.length > 0) {
+                const deleteSharedPromises = tracker.sharedWith.map(
+                  async (userId) => {
+                    // Find the shared tracker document
+                    const sharedTrackersRef = collection(
+                      db,
+                      "users",
+                      userId,
+                      "trackers"
+                    );
+                    const q = query(
+                      sharedTrackersRef,
+                      where("originalTrackerId", "==", tracker.id)
+                    );
+                    const querySnapshot = await getDocs(q);
+
+                    // Delete each shared tracker found
+                    const deletePromises = querySnapshot.docs.map((doc) =>
+                      deleteDoc(doc.ref)
+                    );
+                    await Promise.all(deletePromises);
+                  }
+                );
+                await Promise.all(deleteSharedPromises);
+              }
+
+              // Delete the original tracker
               const trackerRef = doc(
                 db,
                 "users",
@@ -355,6 +405,7 @@ export default function TrackerDetail() {
                 tracker.id
               );
               await deleteDoc(trackerRef);
+
               setDeleting(false);
               // Ensure we're on the main thread when navigating
               setTimeout(() => {
@@ -454,10 +505,10 @@ export default function TrackerDetail() {
 
           <View className="flex-row items-center justify-between bg-gray-100 p-6 rounded-xl mb-8">
             <TouchableOpacity
-              className="w-16 h-16 bg-white rounded-full items-center justify-center shadow-sm active:bg-gray-50"
+              className="bg-[#00bf63] w-12 h-12 rounded-full items-center justify-center"
               onPress={handleDecrement}
             >
-              <Ionicons name="remove" size={32} color="#666" />
+              <Ionicons name="remove" size={24} color="white" />
             </TouchableOpacity>
 
             <View className="items-center">
@@ -468,14 +519,14 @@ export default function TrackerDetail() {
             </View>
 
             <TouchableOpacity
-              className="w-16 h-16 bg-blue-500 rounded-full items-center justify-center shadow-sm active:bg-blue-600"
+              className="bg-[#00bf63] w-12 h-12 rounded-full items-center justify-center"
               onPress={handleIncrement}
             >
-              <Ionicons name="add" size={32} color="white" />
+              <Ionicons name="add" size={24} color="white" />
             </TouchableOpacity>
           </View>
 
-          <View className="bg-gray-100 p-4 rounded-xl">
+          <View className="bg-gray-100 p-4 rounded-xl mb-6">
             <Text className="text-lg font-semibold mb-4">History</Text>
             {historyData.length > 0 ? (
               <View className="space-y-3">
@@ -512,36 +563,51 @@ export default function TrackerDetail() {
                   color="#666"
                   className="mr-2"
                 />
-                <Text className="text-gray-600">{originalOwnerEmail}</Text>
+                <View>
+                  <Text className="text-gray-900 font-medium">
+                    {originalOwnerEmail.name}
+                  </Text>
+                  <Text className="text-gray-600">
+                    {originalOwnerEmail.email}
+                  </Text>
+                </View>
               </View>
             </View>
           )}
 
           <TouchableOpacity
-            className="bg-blue-500 p-4 rounded-xl mt-6"
+            className="w-full h-12 bg-[#00bf63] rounded-xl items-center justify-center"
             onPress={() => setIsShareModalVisible(true)}
           >
-            <Text className="text-white text-center font-semibold">
-              Share Tracker
-            </Text>
+            <Text className="text-white font-semibold text-lg">Share</Text>
           </TouchableOpacity>
 
           {sharedUserEmails.length > 0 && (
             <View className="mt-6 bg-gray-100 p-4 rounded-xl">
               <Text className="text-lg font-semibold mb-2">Shared With</Text>
-              {sharedUserEmails.map((user) => (
+              {sharedUserEmails.map((user, index) => (
                 <View
                   key={user.id}
-                  className="flex-row items-center justify-between py-2 border-b border-gray-200"
+                  className={`flex-row items-center justify-between py-2 ${
+                    sharedUserEmails.length > 1 &&
+                    index !== sharedUserEmails.length - 1
+                      ? "border-b border-gray-200"
+                      : ""
+                  }`}
                 >
-                  <View className="flex-row items-center">
+                  <View className="flex-row items-center flex-1 mr-2">
                     <Ionicons
                       name="person"
                       size={20}
                       color="#666"
                       className="mr-2"
                     />
-                    <Text className="text-gray-600">{user.email}</Text>
+                    <View>
+                      <Text className="text-gray-900 font-medium">
+                        {user.name}
+                      </Text>
+                      <Text className="text-gray-600">{user.email}</Text>
+                    </View>
                   </View>
                   <TouchableOpacity
                     onPress={() => handleRemoveShare(user.id)}
@@ -595,14 +661,16 @@ export default function TrackerDetail() {
                   />
 
                   <TouchableOpacity
-                    className="w-full h-12 bg-blue-500 rounded-lg items-center justify-center"
+                    className="w-full h-12 bg-[#00bf63] rounded-xl items-center justify-center"
                     onPress={handleShare}
                     disabled={isSharing}
                   >
                     {isSharing ? (
                       <ActivityIndicator color="white" />
                     ) : (
-                      <Text className="text-white font-semibold">Share</Text>
+                      <Text className="text-white font-semibold text-lg">
+                        Share
+                      </Text>
                     )}
                   </TouchableOpacity>
                 </View>

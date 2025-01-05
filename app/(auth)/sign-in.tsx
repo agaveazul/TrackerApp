@@ -5,8 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 
@@ -14,68 +18,91 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
     try {
       setLoading(true);
-      setError("");
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      setError("Failed to sign in. Please check your credentials.");
-      console.error(err);
+      router.replace("/(tabs)");
+    } catch (error: any) {
+      console.error("Error signing in:", error);
+      Alert.alert(
+        "Error",
+        error.code === "auth/invalid-credential"
+          ? "Invalid email or password"
+          : "Failed to sign in. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View className="flex-1 justify-center p-6 bg-white">
-      <View className="space-y-4">
-        <Text className="text-3xl font-bold text-center mb-8">
+    <ScrollView
+      className="flex-1"
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View className="flex-1 p-6 justify-center">
+        <Text className="text-3xl font-bold mb-16 text-center">
           Welcome Back
         </Text>
 
-        {error ? (
-          <Text className="text-red-500 text-center mb-4">{error}</Text>
-        ) : null}
+        <View className="space-y-8">
+          <View>
+            <Text className="text-gray-600 mb-4">Email</Text>
+            <TextInput
+              className="w-full h-12 px-4 border border-gray-300 rounded-lg mb-8"
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              returnKeyType="next"
+            />
+          </View>
 
-        <TextInput
-          className="w-full h-12 px-4 border border-gray-300 rounded-lg"
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
+          <View>
+            <Text className="text-gray-600 mb-4">Password</Text>
+            <TextInput
+              className="w-full h-12 px-4 border border-gray-300 rounded-lg"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              returnKeyType="done"
+              onSubmitEditing={handleSignIn}
+            />
+          </View>
 
-        <TextInput
-          className="w-full h-12 px-4 border border-gray-300 rounded-lg"
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+          <TouchableOpacity
+            className="w-full h-12 bg-[#00bf63] rounded-lg items-center justify-center mt-6"
+            onPress={handleSignIn}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white font-semibold">Sign In</Text>
+            )}
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity
-          className="w-full h-12 bg-blue-500 rounded-lg items-center justify-center"
-          onPress={handleSignIn}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white font-semibold">Sign In</Text>
-          )}
-        </TouchableOpacity>
-
-        <View className="flex-row justify-center space-x-1">
-          <Text className="text-gray-600">Don't have an account?</Text>
-          <Link href="/sign-up" className="text-blue-500 font-semibold">
-            Sign Up
+        <View className="flex-row justify-center mt-12">
+          <Text className="text-gray-600">Don't have an account? </Text>
+          <Link href="/(auth)/sign-up" asChild>
+            <TouchableOpacity>
+              <Text className="text-[#00bf63] font-semibold">Sign Up</Text>
+            </TouchableOpacity>
           </Link>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }

@@ -82,16 +82,15 @@ export default function TabOneScreen() {
           <Text className="text-2xl font-bold">My Trackers</Text>
           <View className="flex-row items-center">
             <Link href="/new-tracker" asChild>
-              <TouchableOpacity className="p-2 rounded-full bg-gray-100 mr-2">
-                <Ionicons name="add" size={24} color="#666" />
+              <TouchableOpacity className="p-2 rounded-full bg-[#00bf63] mr-2">
+                <Ionicons name="add" size={24} color="white" />
               </TouchableOpacity>
             </Link>
-            <TouchableOpacity
-              className="p-2 rounded-full bg-gray-100"
-              onPress={handleLogout}
-            >
-              <Ionicons name="log-out-outline" size={24} color="#666" />
-            </TouchableOpacity>
+            <Link href="/profile" asChild>
+              <TouchableOpacity className="p-2 rounded-full bg-gray-100">
+                <Ionicons name="person-circle-outline" size={24} color="#666" />
+              </TouchableOpacity>
+            </Link>
           </View>
         </View>
       </SafeAreaView>
@@ -104,7 +103,7 @@ export default function TabOneScreen() {
                 No trackers yet
               </Text>
               <Link href="/new-tracker" asChild>
-                <TouchableOpacity className="bg-blue-500 px-6 py-3 rounded-lg">
+                <TouchableOpacity className="bg-[#00bf63] px-6 py-3 rounded-lg">
                   <Text className="text-white font-semibold">
                     Create Your First Tracker
                   </Text>

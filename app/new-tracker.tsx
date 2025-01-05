@@ -204,9 +204,9 @@ export default function NewTracker() {
           </View>
 
           <TouchableOpacity
-            className="w-full h-12 bg-blue-500 rounded-lg items-center justify-center mt-6"
+            className="w-full h-12 bg-[#00bf63] rounded-lg items-center justify-center mt-6"
             onPress={handleCreate}
-            disabled={!name.trim() || loading}
+            disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="white" />
