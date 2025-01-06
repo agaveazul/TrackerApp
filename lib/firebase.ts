@@ -1,5 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, initializeAuth } from "firebase/auth";
+import {
+  getAuth,
+  initializeAuth,
+  getReactNativePersistence,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,51 +31,19 @@ if (!firebaseConfig.apiKey) {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth
+// Initialize Auth with the correct persistence
 let auth;
 
 if (isWeb) {
   auth = getAuth(app);
 } else {
-  // For React Native, we need to use a custom persistence layer
-  auth = initializeAuth(app);
-
-  // Set up persistence listeners manually
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      try {
-        await AsyncStorage.setItem(
-          "firebase:auth:user",
-          JSON.stringify({
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-          })
-        );
-      } catch (error) {
-        console.error("Error saving auth state:", error);
-      }
-    } else {
-      try {
-        await AsyncStorage.removeItem("firebase:auth:user");
-      } catch (error) {
-        console.error("Error removing auth state:", error);
-      }
-    }
+  // For React Native, use ReactNativePersistence
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
   });
-
-  // Try to restore auth state on initialization
-  AsyncStorage.getItem("firebase:auth:user")
-    .then((savedUser) => {
-      if (savedUser) {
-        console.log("Restored auth state from AsyncStorage");
-      }
-    })
-    .catch((error) => {
-      console.error("Error restoring auth state:", error);
-    });
 }
 
+// Remove the setPersistence call since we're handling it in the initialization
 export { auth };
 
 // Initialize other services

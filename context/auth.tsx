@@ -6,7 +6,6 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
-import { useAuthPersistence } from "../hooks/useAuthPersistence";
 
 type AuthContextType = {
   user: User | null;
@@ -20,15 +19,15 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-
-  // Use the auth persistence hook
-  useAuthPersistence();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("Setting up auth state listener");
-    const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
+
+    const unsubscribe = onAuthStateChanged(auth as Auth, (currentUser) => {
       console.log("Auth state changed:", currentUser?.email || "No user");
       setUser(currentUser);
+      setLoading(false);
     });
 
     return () => {
@@ -36,6 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       unsubscribe();
     };
   }, []);
+
+  if (loading) {
+    return null;
+  }
 
   const signOut = async () => {
     try {
@@ -54,4 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
