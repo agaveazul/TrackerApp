@@ -44,3 +44,13 @@ yarn-error.*
 
 expo-env.d.ts
 # @end expo-cli
+
+# Environment files
+.env
+.env.development
+.env.production
+!.env.example
+
+# Native project folders
+/ios/
+/android/
