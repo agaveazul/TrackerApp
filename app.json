@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.agaveazul.trackerapp"
+      "bundleIdentifier": "com.agaveazul.trackerapp",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,22 +20,8 @@
       },
       "package": "com.agaveazul.trackerapp"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true
@@ -44,7 +31,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "a0829f81-28c1-4d0e-a7dc-8c6e85a1d4a7"
+        "projectId": "fb38ebf7-dcb4-47e2-9220-af34b03ea398"
       }
     },
     "owner": "agaveazul"
