@@ -16,10 +16,18 @@
     "preview": {
       "distribution": "internal",
       "ios": {
-        "resourceClass": "m-medium"
+        "resourceClass": "m-medium",
+        "simulator": false
       },
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "${EXPO_PUBLIC_FIREBASE_API_KEY}",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "trackerapp-69b4c.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "trackerapp-69b4c",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "trackerapp-69b4c.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "492819067295",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:492819067295:web:894f7c12755b040b654daa",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-WV79C0N7VN"
       }
     },
     "production": {
@@ -27,7 +35,14 @@
         "resourceClass": "m-medium"
       },
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "${EXPO_PUBLIC_FIREBASE_API_KEY}",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "trackerapp-69b4c.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "trackerapp-69b4c",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "trackerapp-69b4c.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "492819067295",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:492819067295:web:894f7c12755b040b654daa",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-WV79C0N7VN"
       }
     }
   }
