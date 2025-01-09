@@ -21,7 +21,6 @@
       },
       "env": {
         "APP_ENV": "production",
-        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyDy7Dmf6Ub6QqtlRJgq_tBD8Z1vq_hC1Lw",
         "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "trackerapp-69b4c.firebaseapp.com",
         "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "trackerapp-69b4c",
         "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "trackerapp-69b4c.firebasestorage.app",
@@ -36,7 +35,6 @@
       },
       "env": {
         "APP_ENV": "production",
-        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyDy7Dmf6Ub6QqtlRJgq_tBD8Z1vq_hC1Lw",
         "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "trackerapp-69b4c.firebaseapp.com",
         "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "trackerapp-69b4c",
         "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "trackerapp-69b4c.firebasestorage.app",
