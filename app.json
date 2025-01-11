@@ -20,9 +20,7 @@
       },
       "package": "com.agaveazul.trackerapp"
     },
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     },
@@ -34,6 +32,12 @@
         "projectId": "fb38ebf7-dcb4-47e2-9220-af34b03ea398"
       }
     },
-    "owner": "agaveazul"
+    "owner": "agaveazul",
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/fb38ebf7-dcb4-47e2-9220-af34b03ea398"
+    },
+    "runtimeVersion": "1.0.0"
   }
 }

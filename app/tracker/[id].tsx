@@ -61,7 +61,7 @@ export default function TrackerDetail() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA");
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const [sharingWith, setSharingWith] = useState<string[]>([]);
@@ -147,7 +147,7 @@ export default function TrackerDetail() {
 
   const handleIncrement = async () => {
     if (!user || !tracker) return;
-
+    console.log("today:", today);
     try {
       // If this is a shared tracker, update the original
       if (tracker.originalTrackerId && tracker.originalOwnerId) {
@@ -531,10 +531,8 @@ export default function TrackerDetail() {
             {historyData.length > 0 ? (
               <View className="space-y-3">
                 {historyData.map(([date, count]) => {
-                  const d = new Date(date);
-                  const formattedDate = `${
-                    d.getMonth() + 1
-                  }/${d.getDate()}/${d.getFullYear()}`;
+                  const [year, month, day] = date.split("-");
+                  const formattedDate = `${month}/${day}/${year}`;
                   return (
                     <View
                       key={date}
